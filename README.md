@@ -1,16 +1,19 @@
 # countries_app
 
-A new Flutter project.
+This project is a Flutter application that displays a list of Latin American countries, allowing users to add, edit, and delete countries.
 
-## Getting Started
+## Project Description
 
-This project is a starting point for a Flutter application.
+The application has three main screens:
 
-A few resources to get you started if this is your first Flutter project:
+- **HomeScreen**: Displays a list of cards, each representing a country.
+- **DetailsScreen**: Shows details of the selected country, with options to edit or delete the country.
+- **FormScreen**: Allows users to add a new country or edit an existing one.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+This project is based on the Clean architecture by separating responsibilities into different layers:
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- **Presentation (UI)**: Contains screens. It interacts only with the use cases.
+- **Domain**: Contains business rules and use cases. In this layer, use cases interact with the repository interface, unaware of how the data is stored or manipulated.
+- **Infrastructure**: Contains the implementation of repositories, managing data access logic, such as loading the JSON file.
+
+
