@@ -1,0 +1,26 @@
+[
+    {
+      "name": "Colombia",
+      "capital": "Bogotá",
+      "description": "País con mas biodiversidad",
+      "population": "51,87 millones"
+    },
+    {
+      "name": "Argentina",
+      "capital": "Buenos Aires",
+      "description": "País en Sudamérica.",
+      "population": "46,23 millones"
+    },
+    {
+      "name": "Brasil",
+      "capital": "Brasilia",
+      "description": "El país más grande de Sudamérica.",
+      "population": "215,3 millones"
+    },
+    {
+      "name": "Peru",
+      "capital": "Lima",
+      "description": "País con la mejor comida",
+      "population": "34,05 millones"
+    }
+  ]
