@@ -1,21 +1,22 @@
-import 'package:countries_app/domain/entities/country.dart';
-import 'package:countries_app/domain/usecase/add_country.dart';
-import 'package:countries_app/domain/usecase/update_country.dart';
+import 'package:countries_app/domain/entities/country_entity.dart';
+import 'package:countries_app/domain/usecase/add_country_use_case.dart';
+import 'package:countries_app/domain/usecase/update_country_use_case.dart';
+import 'package:countries_app/presentation/widgets/input_form_country.dart';
 import 'package:flutter/material.dart';
 
 class FormScreen extends StatefulWidget {
 
   final Country? country;
   final int? index;
-  final UpdateCountry updateCountry;
-  final AddCountry addCountry;
+  final UpdateCountryUseCase updateCountryUseCase;
+  final AddCountryUseCase addCountryUseCase;
 
   const FormScreen({
     super.key, 
     this.country, 
     this.index,
-    required this.updateCountry, 
-    required this.addCountry
+    required this.updateCountryUseCase, 
+    required this.addCountryUseCase
   });
 
   @override
@@ -59,9 +60,9 @@ class _FormScreenState extends State<FormScreen> {
       );
 
       if (widget.index == null) {
-        widget.addCountry(newCountry);
+        widget.addCountryUseCase(newCountry);
       } else {
-        widget.updateCountry(widget.index!, newCountry);
+        widget.updateCountryUseCase(widget.index!, newCountry);
       }
 
       Navigator.pop(context, true);
@@ -81,40 +82,10 @@ class _FormScreenState extends State<FormScreen> {
             key: _formKey,
             child: Column(
               children: [
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(labelText: 'Name'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Name is required';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _capitalController,
-                  decoration: const InputDecoration(labelText: 'Capital'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Capital is required';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Description is required';
-                    }
-                    return null;
-                  },
-                ),
-                TextFormField(
-                  controller: _populationController,
-                  decoration: const InputDecoration(labelText: 'Population')                  
-                ),
+                InputFormCountry(controller: _nameController, type: 'Name',),
+                InputFormCountry(controller: _capitalController, type: 'Capital',),
+                InputFormCountry(controller: _descriptionController, type: 'Description',),
+                InputFormCountry(controller: _populationController, type: 'Population', isRequired: false),
                 const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: _saveForm,

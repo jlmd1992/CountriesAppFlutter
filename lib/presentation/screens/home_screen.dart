@@ -1,23 +1,22 @@
-import 'package:countries_app/domain/entities/country.dart';
-import 'package:countries_app/domain/usecase/add_country.dart';
-import 'package:countries_app/domain/usecase/delete_country.dart';
-import 'package:countries_app/domain/usecase/get_countries.dart';
-import 'package:countries_app/domain/usecase/update_country.dart';
-import 'package:countries_app/presentation/screens/details_screen.dart';
-import 'package:countries_app/presentation/screens/form_screen.dart';
+import 'package:countries_app/config/routes.dart';
+import 'package:countries_app/domain/entities/country_entity.dart';
+import 'package:countries_app/domain/usecase/add_country_use_case.dart';
+import 'package:countries_app/domain/usecase/delete_country_use_case.dart';
+import 'package:countries_app/domain/usecase/get_countries_use_case.dart';
+import 'package:countries_app/domain/usecase/update_country_use_case.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
-  final GetCountries getCountries;
-  final AddCountry addCountry;
-  final UpdateCountry updateCountry;
-  final DeleteCountry deleteCountry;
+  final GetCountriesUseCase getCountriesUseCase;
+  final AddCountryUseCase addCountryUseCase;
+  final UpdateCountryUseCase updateCountryUseCase;
+  final DeleteCountryUseCase deleteCountryUseCase;
 
   const HomeScreen({
-    required this.getCountries, 
-    required this.addCountry, 
-    required this.updateCountry, 
-    required this.deleteCountry
+    required this.getCountriesUseCase, 
+    required this.addCountryUseCase, 
+    required this.updateCountryUseCase, 
+    required this.deleteCountryUseCase
   });
 
   @override
@@ -38,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _loadCountries() async {
     try {
-      final countries = await widget.getCountries();
+      final countries = await widget.getCountriesUseCase();
       setState(() {
         _countries = countries;
         _isLoading = false;
@@ -52,11 +51,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _navigateToForm() async {
-    final result = await Navigator.push(
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => FormScreen(addCountry: widget.addCountry, updateCountry: widget.updateCountry,),
-      ),
+      Routes.formScreen,
+      arguments: {
+        'addCountryUseCase': widget.addCountryUseCase,
+        'updateCountryUseCase': widget.updateCountryUseCase,
+      },
     );
 
     if (result == true) {
@@ -65,17 +66,16 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _navigateToDetails(int index) async {
-    final result = await Navigator.push(
+    final result = await Navigator.pushNamed(
       context,
-      MaterialPageRoute(
-        builder: (context) => DetailsScreen(
-          country: _countries[index],
-          index: index,
-          updateCountry: widget.updateCountry, 
-          deleteCountry: widget.deleteCountry, 
-          addCountry: widget.addCountry
-        ),
-      ),
+      Routes.detailsScreen,
+      arguments: {
+          'country': _countries[index],
+          'index': index,
+          'updateCountryUseCase': widget.updateCountryUseCase, 
+          'deleteCountryUseCase': widget.deleteCountryUseCase, 
+          'addCountryUseCase': widget.addCountryUseCase
+      }
     );
 
     if (result == true) {

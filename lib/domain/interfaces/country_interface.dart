@@ -1,7 +1,7 @@
 
-import '../entities/country.dart';
+import '../entities/country_entity.dart';
 
-abstract class CountryRepository {
+abstract class CountryInterface {
   Future<List<Country>> getCountries();
 
   void addCountry(Country country);

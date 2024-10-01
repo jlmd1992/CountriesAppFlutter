@@ -1,54 +1,38 @@
-import 'package:countries_app/domain/entities/country.dart';
-import 'package:countries_app/domain/usecase/add_country.dart';
-import 'package:countries_app/domain/usecase/delete_country.dart';
-import 'package:countries_app/domain/usecase/update_country.dart';
-import 'package:countries_app/presentation/screens/form_screen.dart';
+import 'package:countries_app/config/routes.dart';
+import 'package:countries_app/domain/entities/country_entity.dart';
+import 'package:countries_app/domain/usecase/add_country_use_case.dart';
+import 'package:countries_app/domain/usecase/delete_country_use_case.dart';
+import 'package:countries_app/domain/usecase/update_country_use_case.dart';
+import 'package:countries_app/presentation/widgets/alert_dialog_confirm.dart';
 import 'package:flutter/material.dart';
 
 class DetailsScreen extends StatelessWidget {
 
   final Country country;
   final int index;
-  final AddCountry addCountry;
-  final UpdateCountry updateCountry;
-  final DeleteCountry deleteCountry;
+  final AddCountryUseCase addCountryUseCase;
+  final UpdateCountryUseCase updateCountryUseCase;
+  final DeleteCountryUseCase deleteCountryUseCase;
 
   const DetailsScreen({
     super.key, 
     required this.country, 
     required this.index,
-    required this.updateCountry, 
-    required this.deleteCountry, 
-    required this.addCountry
+    required this.updateCountryUseCase, 
+    required this.deleteCountryUseCase, 
+    required this.addCountryUseCase
   });
 
   Future<void> _showConfirmDialog(BuildContext context) async {
     final bool? result = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Confirm delete'),
-          content: Text('¿Are you sure to delete the country: "${country.name}"?'),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(false);
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop(true);
-              },
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
-            ),
-          ],
-        );
+        return AlertDialogConfirm(country: country);
       },
     );
 
     if (result == true) {
-      deleteCountry(index);
+      deleteCountryUseCase(index);
       Navigator.pop(context, true);
     }
   }
@@ -75,16 +59,15 @@ class DetailsScreen extends StatelessWidget {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushNamed(
                       context,
-                      MaterialPageRoute(
-                        builder: (context) => FormScreen(
-                          addCountry: addCountry,
-                          country: country,
-                          index: index,
-                          updateCountry: updateCountry,
-                        ),
-                      ),
+                      Routes.formScreen,
+                      arguments: {
+                        'addCountryUseCase': addCountryUseCase,
+                        'country': country,
+                        'index': index,
+                        'updateCountryUseCase': updateCountryUseCase,
+                      },
                     ).then((result) {
                       if (result == true) {
                         Navigator.pop(context, true);
