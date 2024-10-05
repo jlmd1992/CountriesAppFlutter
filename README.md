@@ -16,4 +16,5 @@ This project is based on the Clean architecture by separating responsibilities i
 - **Domain**: Contains business rules and use cases. In this layer, use cases interact with the repository interface, unaware of how the data is stored or manipulated.
 - **Infrastructure**: Contains the implementation of repositories, managing data access logic, such as loading the JSON file.
 
-
+State with Provider
+The project uses the Provider package for state management, replacing traditional StatefulWidget components. Provider is a dependency in Flutter that makes state management more efficient and scalable, and is easier to implement that bloc.
