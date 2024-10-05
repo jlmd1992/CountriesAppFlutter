@@ -1,117 +1,102 @@
-import 'package:countries_app/config/routes.dart';
 import 'package:countries_app/domain/entities/country_entity.dart';
-import 'package:countries_app/domain/usecase/add_country_use_case.dart';
-import 'package:countries_app/domain/usecase/delete_country_use_case.dart';
-import 'package:countries_app/domain/usecase/get_countries_use_case.dart';
-import 'package:countries_app/domain/usecase/update_country_use_case.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:countries_app/config/routes.dart';
+import 'package:countries_app/presentation/providers/home_provider.dart';
 
-class HomeScreen extends StatefulWidget {
-  final GetCountriesUseCase getCountriesUseCase;
-  final AddCountryUseCase addCountryUseCase;
-  final UpdateCountryUseCase updateCountryUseCase;
-  final DeleteCountryUseCase deleteCountryUseCase;
+class HomeScreen extends StatelessWidget {
 
-  const HomeScreen({
-    required this.getCountriesUseCase, 
-    required this.addCountryUseCase, 
-    required this.updateCountryUseCase, 
-    required this.deleteCountryUseCase
-  });
+  const HomeScreen({super.key});
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-
-  List<Country> _countries = [];
-  bool _isLoading = true;
-  bool _hasError = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadCountries();
-  }
-
-  Future<void> _loadCountries() async {
-    try {
-      final countries = await widget.getCountriesUseCase();
-      setState(() {
-        _countries = countries;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _isLoading = false;
-        _hasError = true;
-      });
-    }
-  }
-
-  Future<void> _navigateToForm() async {
-    final result = await Navigator.pushNamed(
+  Future<void> _navigateToForm(BuildContext context) async {
+    final result = await 
+    Navigator.pushNamed(
       context,
       Routes.formScreen,
       arguments: {
-        'addCountryUseCase': widget.addCountryUseCase,
-        'updateCountryUseCase': widget.updateCountryUseCase,
+        'country': null,
+        'index': null,
       },
     );
 
     if (result == true) {
-      _loadCountries();
-    }
-  }
-
-  Future<void> _navigateToDetails(int index) async {
-    final result = await Navigator.pushNamed(
-      context,
-      Routes.detailsScreen,
-      arguments: {
-          'country': _countries[index],
-          'index': index,
-          'updateCountryUseCase': widget.updateCountryUseCase, 
-          'deleteCountryUseCase': widget.deleteCountryUseCase, 
-          'addCountryUseCase': widget.addCountryUseCase
-      }
-    );
-
-    if (result == true) {
-      _loadCountries();
+      context.read<HomeProvider>().loadCountries();
     }
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final homeProvider = context.watch<HomeProvider>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!homeProvider.isLoading && homeProvider.countries.isEmpty) {
+        context.read<HomeProvider>().loadCountries();
+      }
+    });
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Latin America Countries'),
       ),
-      body: _isLoading
+      body: homeProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
-          : _hasError
+          : homeProvider.hasError
               ? const Center(child: Text('Error loading data'))
               : Padding(
                   padding: const EdgeInsets.only(bottom: 16.0),
                   child: ListView.builder(
-                    itemCount: _countries.length,
+                    itemCount: homeProvider.countries.length,
                     itemBuilder: (context, index) {
-                      return Card(
-                        child: ListTile(
-                          title: Text(_countries[index].name),
-                          subtitle: Text(_countries[index].capital),
-                          onTap: () => _navigateToDetails(index),
-                        ),
-                      );
+                      final country = homeProvider.countries[index];
+                      return _CountryCard(country: country, index: index);
                     },
                   ),
                 ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToForm,
+        onPressed: () => _navigateToForm(context),
         child: const Icon(Icons.add),
       ),
+    );
+  }
+}
+
+class _CountryCard extends StatelessWidget{
+
+  final Country country;
+  final int index;
+
+  const _CountryCard({
+    required this.country, 
+    required this.index
+  });
+
+  Future<void> _navigateToDetails(BuildContext context, int index) async {
+    final homeProvider = context.read<HomeProvider>();
+    final country = homeProvider.countries[index];
+
+    final result = await Navigator.pushNamed(
+      context,
+      Routes.detailsScreen,
+      arguments: {
+        'country': country,
+        'index': index,
+      },
+    );
+
+    if (result == true) {
+      homeProvider.loadCountries();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        title: Text(country.name),
+        subtitle: Text(country.capital),
+        onTap: () => _navigateToDetails(context, index),
+      )
     );
   }
 }

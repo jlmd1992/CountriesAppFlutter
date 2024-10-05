@@ -11,17 +11,9 @@ class Routes {
   static Route<dynamic>? generateRoute(RouteSettings settings) {
     switch (settings.name) {
       case homeScreen:
-        if (settings.arguments is Map) {
-          final args = settings.arguments as Map;
-          return MaterialPageRoute(
-            builder: (_) => HomeScreen(
-              getCountriesUseCase: args['getCountry'],
-              addCountryUseCase: args['addCountry'],
-              updateCountryUseCase: args['updateCountry'],
-              deleteCountryUseCase: args['deleteCountry'],
-            )
-          );
-        }
+        return MaterialPageRoute(
+          builder: (_) => const HomeScreen()
+        );
       case detailsScreen:
         if (settings.arguments is Map) {
           final args = settings.arguments as Map;
@@ -29,9 +21,6 @@ class Routes {
             builder: (_) => DetailsScreen(
               country: args['country'], 
               index: args['index'],
-              updateCountryUseCase: args['updateCountryUseCase'],
-              deleteCountryUseCase: args['deleteCountryUseCase'],
-              addCountryUseCase: args['addCountryUseCase'],
             ),
           );
         }
@@ -42,8 +31,6 @@ class Routes {
             builder: (_) => FormScreen(
               country: args['country'], 
               index: args['index'],
-              addCountryUseCase: args['addCountryUseCase'], 
-              updateCountryUseCase: args['updateCountryUseCase'],
             ),
           );
         }

@@ -15,7 +15,7 @@ class DeleteCountryUseCase {
   ///
   /// This function calls the `deleteCountry` method on the provided repository
   /// and deletes a Country by its [index].
-  void call(int index) {
+  Future<void> call(int index) async {
     repository.deleteCountry(index);
   }
 }

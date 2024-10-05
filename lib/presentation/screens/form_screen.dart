@@ -1,79 +1,53 @@
-import 'package:countries_app/domain/entities/country_entity.dart';
-import 'package:countries_app/domain/usecase/add_country_use_case.dart';
-import 'package:countries_app/domain/usecase/update_country_use_case.dart';
-import 'package:countries_app/presentation/widgets/input_form_country.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:countries_app/domain/entities/country_entity.dart';
+import 'package:countries_app/presentation/providers/form_provider.dart';
+import 'package:countries_app/presentation/widgets/input_form_country.dart';
 
-class FormScreen extends StatefulWidget {
+class FormScreen extends StatelessWidget {
 
   final Country? country;
   final int? index;
-  final UpdateCountryUseCase updateCountryUseCase;
-  final AddCountryUseCase addCountryUseCase;
 
-  const FormScreen({
+  FormScreen({
     super.key, 
     this.country, 
     this.index,
-    required this.updateCountryUseCase, 
-    required this.addCountryUseCase
   });
-
-  @override
-  State<FormScreen> createState() => _FormScreenState();
-}
-
-class _FormScreenState extends State<FormScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _nameController;
-  late TextEditingController _capitalController;
-  late TextEditingController _descriptionController;
-  late TextEditingController _populationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _nameController = TextEditingController(text: widget.country?.name ?? '');
-    _capitalController = TextEditingController(text: widget.country?.capital ?? '');
-    _descriptionController = TextEditingController(text: widget.country?.description ?? '');
-    _populationController = TextEditingController(text: widget.country?.population ?? '');
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _capitalController.dispose();
-    _descriptionController.dispose();
-    _populationController.dispose();
-    super.dispose();
-  }
-
-  void _saveForm() async {
-    if (_formKey.currentState!.validate()) {
-      final newCountry = Country(
-        name: _nameController.text,
-        capital: _capitalController.text,
-        description: _descriptionController.text,
-        population: _populationController.text,
-      );
-
-      if (widget.index == null) {
-        widget.addCountryUseCase(newCountry);
-      } else {
-        widget.updateCountryUseCase(widget.index!, newCountry);
-      }
-
-      Navigator.pop(context, true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
+
+    final formProvider = context.watch<FormProvider>();
+
+    final TextEditingController nameController = TextEditingController(text: country?.name ?? '');
+    final TextEditingController capitalController = TextEditingController(text: country?.capital ?? '');
+    final TextEditingController descriptionController = TextEditingController(text: country?.description ?? '');
+    final TextEditingController populationController = TextEditingController(text: country?.population ?? '');
+
+    Future<void> saveForm() async {
+      if (_formKey.currentState!.validate()) {
+        final newCountry = Country(
+          name: nameController.text,
+          capital: capitalController.text,
+          description: descriptionController.text,
+          population: populationController.text,
+        );
+
+        if (index == null) {
+          await formProvider.addCountry(newCountry);
+        } else {
+          await formProvider.updateCountry(index!, newCountry);
+        }
+        Navigator.pop(context, true);
+      }
+    }
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.country == null ? 'Add Country' : 'Edit Country'),
+        title: Text(country == null ? 'Add Country' : 'Edit Country'),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -82,14 +56,18 @@ class _FormScreenState extends State<FormScreen> {
             key: _formKey,
             child: Column(
               children: [
-                InputFormCountry(controller: _nameController, type: 'Name',),
-                InputFormCountry(controller: _capitalController, type: 'Capital',),
-                InputFormCountry(controller: _descriptionController, type: 'Description',),
-                InputFormCountry(controller: _populationController, type: 'Population', isRequired: false),
+                InputFormCountry(controller: nameController, type: 'Name',),
+                InputFormCountry(controller: capitalController, type: 'Capital',),
+                InputFormCountry(controller: descriptionController, type: 'Description',),
+                InputFormCountry(controller: populationController, type: 'Population', isRequired: false),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _saveForm,
-                  child: Text(widget.index == null ? 'Add' : 'Save'),
+                  onPressed: formProvider.isSaving ? null : saveForm,
+                  child: formProvider.isSaving
+                      ? const CircularProgressIndicator(
+                          color: Colors.blue,
+                        )
+                      : Text(index == null ? 'Add' : 'Save'),
                 ),
                 const SizedBox(height: 30),
               ],

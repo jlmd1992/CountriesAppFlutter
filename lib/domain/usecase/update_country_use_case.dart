@@ -16,7 +16,7 @@ class UpdateCountryUseCase {
   ///
   /// This function calls the `editCountry` method on the provided repository
   /// and update a [Country] by its [index].
-  void call(int index, Country country) {
+  Future<void> call(int index, Country country) async {
     repository.editCountry(index, country);
   }
 }

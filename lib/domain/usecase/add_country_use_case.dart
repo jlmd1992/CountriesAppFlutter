@@ -16,7 +16,7 @@ class AddCountryUseCase {
   ///
   /// This function calls the `addCountry` method on the provided repository
   /// and add a new [Country] to the list.
-  void call(Country country) {
+  Future<void> call(Country country) async {
     repository.addCountry(country);
   }
 }
